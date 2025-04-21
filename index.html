@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Juego de Memoria: La Célula</title>
+  <title>Juegos Interactivos: La Célula</title>
   <style>
     body {
       margin: 0;
-      padding: 0;
+      padding: 20px;
       background: #f0f0f0;
       font-family: sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      color: #333;
     }
+    h1, h2 { text-align: center; }
+    /* ---- Memory Game ---- */
     #memory-game {
       width: 660px;
+      margin: 0 auto 40px;
       display: flex;
       flex-wrap: wrap;
       perspective: 1000px;
@@ -26,78 +26,127 @@
       border-radius: 8px;
     }
     .card {
-      width: 150px;
-      height: 150px;
+      width: 150px; height: 150px;
       margin: 10px;
       position: relative;
       transform-style: preserve-3d;
       transition: transform 0.5s;
       cursor: pointer;
     }
-    .card.flipped {
-      transform: rotateY(180deg);
-    }
-    .card.matched {
-      pointer-events: none;
-    }
+    .card.flipped { transform: rotateY(180deg); }
+    .card.matched { pointer-events: none; }
     .card-face {
-      position: absolute;
-      backface-visibility: hidden;
-      width: 100%;
-      height: 100%;
+      position: absolute; backface-visibility: hidden;
+      width: 100%; height: 100%;
       border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      padding: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; padding: 10px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-    .card-front {
-      background: #ccc;
-    }
-    .card-back {
-      background: #fff;
-      transform: rotateY(180deg);
       text-align: center;
     }
+    .card-front { background: #ccc; font-size:2rem; }
+    .card-back { 
+      background: #fff; transform: rotateY(180deg); 
+    }
     .card.matched .card-back {
+      background: #4CAF50; color: #fff;
+    }
+    /* ---- Drag & Drop ---- */
+    #ddl-game {
+      max-width: 660px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }
+    .dropzone {
+      display: inline-block;
+      min-width: 120px;
+      padding: 4px 8px;
+      margin: 0 4px;
+      border: 2px dashed #999;
+      border-radius: 4px;
+      vertical-align: middle;
+      background: #fafafa;
+    }
+    .dropzone.filled { border-style: solid; background: #e0f7fa; }
+    .dragitem {
+      display: inline-block;
+      padding: 6px 12px;
+      margin: 6px;
+      background: #29b6f6;
+      color: #fff;
+      border-radius: 4px;
+      cursor: grab;
+      user-select: none;
+    }
+    #draggables { text-align: center; margin-top: 16px; }
+    #ddl-check {
+      display: block;
+      margin: 20px auto 0;
+      padding: 10px 20px;
       background: #4CAF50;
       color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    #ddl-feedback {
+      text-align: center;
+      margin-top: 12px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
+  <h1>Juegos Interactivos: La Célula</h1>
+
+  <h2>1. Memoria de Orgánulos</h2>
   <div id="memory-game"></div>
 
+  <h2>2. Completa el texto arrastrando</h2>
+  <div id="ddl-game">
+    <p>La <span class="dropzone" data-term="Mitocondria">____</span> produce ATP.</p>
+    <p>El <span class="dropzone" data-term="Núcleo">____</span> contiene el ADN.</p>
+    <p>La <span class="dropzone" data-term="Membrana">____</span> controla el paso de sustancias.</p>
+    <p>El <span class="dropzone" data-term="Ribosoma">____</span> sintetiza proteínas.</p>
+
+    <div id="draggables">
+      <div class="dragitem" draggable="true" data-term="Mitocondria">Mitocondria</div>
+      <div class="dragitem" draggable="true" data-term="Núcleo">Núcleo</div>
+      <div class="dragitem" draggable="true" data-term="Membrana">Membrana</div>
+      <div class="dragitem" draggable="true" data-term="Ribosoma">Ribosoma</div>
+    </div>
+
+    <button id="ddl-check">Verificar respuestas</button>
+    <p id="ddl-feedback"></p>
+  </div>
+
   <script>
+    // --- Memory Game ---
     const items = [
       { name: "Mitocondria", text: "Produce ATP (energía)" },
       { name: "Núcleo",      text: "Contiene el ADN" },
       { name: "Membrana",    text: "Controla paso de sustancias" },
       { name: "Ribosoma",    text: "Sintetiza proteínas" }
     ];
-
-    // Duplicar y mezclar
     let cards = items.concat(items).sort(() => 0.5 - Math.random());
-
     const game = document.getElementById("memory-game");
-    let firstCard = null, secondCard = null, lock = false;
+    let firstCard, secondCard, lock = false;
 
     cards.forEach(item => {
       const card = document.createElement("div");
       card.className = "card";
       card.dataset.name = item.name;
-
       const front = document.createElement("div");
       front.className = "card-face card-front";
       front.textContent = "?";
-
       const back = document.createElement("div");
       back.className = "card-face card-back";
       back.innerHTML = `<strong>${item.name}</strong><br><small>${item.text}</small>`;
-
       card.append(front, back);
       game.appendChild(card);
 
@@ -111,22 +160,60 @@
           lock = true;
           if (firstCard.dataset.name === secondCard.dataset.name) {
             [firstCard, secondCard].forEach(c => c.classList.add("matched"));
-            resetTurn();
+            resetMemoryTurn();
           } else {
             setTimeout(() => {
               [firstCard, secondCard].forEach(c => c.classList.remove("flipped"));
-              resetTurn();
-            }, 1000);
+              resetMemoryTurn();
+            }, 800);
           }
         }
       });
     });
 
-    function resetTurn() {
+    function resetMemoryTurn() {
       [firstCard, secondCard] = [null, null];
       lock = false;
     }
-  </script>
 
+    // --- Drag & Drop ---
+    const draggables = document.querySelectorAll('.dragitem');
+    const dropzones  = document.querySelectorAll('.dropzone');
+    let draggedTerm = null;
+
+    draggables.forEach(item => {
+      item.addEventListener('dragstart', e => {
+        draggedTerm = item.dataset.term;
+        e.dataTransfer.setData('text/plain', draggedTerm);
+      });
+    });
+
+    dropzones.forEach(zone => {
+      zone.addEventListener('dragover', e => e.preventDefault());
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        const term = e.dataTransfer.getData('text/plain');
+        if (!zone.classList.contains('filled')) {
+          zone.textContent = term;
+          zone.classList.add('filled');
+        }
+      });
+    });
+
+    document.getElementById('ddl-check').addEventListener('click', () => {
+      let correct = 0;
+      dropzones.forEach(zone => {
+        if (zone.textContent === zone.dataset.term) {
+          zone.style.borderColor = '#4CAF50';
+          correct++;
+        } else {
+          zone.style.borderColor = '#F44336';
+        }
+      });
+      const fb = document.getElementById('ddl-feedback');
+      fb.textContent = `Has completado ${correct} de ${dropzones.length} correctamente.`;
+      fb.style.color = correct === dropzones.length ? '#4CAF50' : '#F44336';
+    });
+  </script>
 </body>
 </html>
