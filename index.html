@@ -8,26 +8,45 @@
     body {
       margin: 0;
       padding: 20px;
-      background: #f0f0f0;
-      font-family: sans-serif;
+      background: #eef2f5;
+      font-family: Arial, sans-serif;
       color: #333;
     }
-    h1, h2 { text-align: center; }
-    /* ---- Memory Game ---- */
-    #memory-game {
-      width: 660px;
-      margin: 0 auto 40px;
-      display: flex;
-      flex-wrap: wrap;
-      perspective: 1000px;
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    section {
+      max-width: 700px;
+      margin: 0 auto 50px;
       background: #fff;
       padding: 20px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-top: 0;
+      text-align: center;
+    }
+    /* ---------- Memory Game ---------- */
+    #memory-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    #memory-header div { font-size: 0.9rem; }
+    #memory-game {
+      display: flex;
+      flex-wrap: wrap;
+      perspective: 800px;
+      justify-content: center;
     }
     .card {
-      width: 150px; height: 150px;
-      margin: 10px;
+      width: 120px;
+      height: 120px;
+      margin: 8px;
       position: relative;
       transform-style: preserve-3d;
       transition: transform 0.5s;
@@ -36,39 +55,57 @@
     .card.flipped { transform: rotateY(180deg); }
     .card.matched { pointer-events: none; }
     .card-face {
-      position: absolute; backface-visibility: hidden;
+      position: absolute;
       width: 100%; height: 100%;
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem; padding: 10px;
+      backface-visibility: hidden;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
       text-align: center;
+      padding: 5px;
+      font-size: 0.9rem;
     }
-    .card-front { background: #ccc; font-size:2rem; }
-    .card-back { 
-      background: #fff; transform: rotateY(180deg); 
+    .card-front {
+      background: #cccccc;
+      font-size: 1.5rem;
+    }
+    .card-back {
+      background: #ffffff;
+      transform: rotateY(180deg);
     }
     .card.matched .card-back {
-      background: #4CAF50; color: #fff;
+      background: #4CAF50;
+      color: #fff;
     }
-    /* ---- Drag & Drop ---- */
-    #ddl-game {
-      max-width: 660px;
-      margin: 0 auto;
-      background: #fff;
-      padding: 20px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      border-radius: 8px;
+    .btn {
+      display: inline-block;
+      padding: 8px 16px;
+      margin-top: 10px;
+      background: #2196F3;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .btn:hover { background: #1976D2; }
+    /* ---------- Drag & Drop ---------- */
+    #ddl-game p {
+      font-size: 1rem;
+      line-height: 1.5;
     }
     .dropzone {
       display: inline-block;
-      min-width: 120px;
+      min-width: 100px;
       padding: 4px 8px;
       margin: 0 4px;
       border: 2px dashed #999;
       border-radius: 4px;
-      vertical-align: middle;
       background: #fafafa;
+      vertical-align: middle;
+      transition: background 0.3s, border-color 0.3s;
     }
     .dropzone.filled { border-style: solid; background: #e0f7fa; }
     .dragitem {
@@ -82,16 +119,9 @@
       user-select: none;
     }
     #draggables { text-align: center; margin-top: 16px; }
-    #ddl-check {
-      display: block;
-      margin: 20px auto 0;
-      padding: 10px 20px;
-      background: #4CAF50;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 1rem;
+    #ddl-controls {
+      text-align: center;
+      margin-top: 20px;
     }
     #ddl-feedback {
       text-align: center;
@@ -104,116 +134,178 @@
 
   <h1>Juegos Interactivos: La Célula</h1>
 
-  <h2>1. Memoria de Orgánulos</h2>
-  <div id="memory-game"></div>
-
-  <h2>2. Completa el texto arrastrando</h2>
-  <div id="ddl-game">
-    <p>La <span class="dropzone" data-term="Mitocondria">____</span> produce ATP.</p>
-    <p>El <span class="dropzone" data-term="Núcleo">____</span> contiene el ADN.</p>
-    <p>La <span class="dropzone" data-term="Membrana">____</span> controla el paso de sustancias.</p>
-    <p>El <span class="dropzone" data-term="Ribosoma">____</span> sintetiza proteínas.</p>
-
-    <div id="draggables">
-      <div class="dragitem" draggable="true" data-term="Mitocondria">Mitocondria</div>
-      <div class="dragitem" draggable="true" data-term="Núcleo">Núcleo</div>
-      <div class="dragitem" draggable="true" data-term="Membrana">Membrana</div>
-      <div class="dragitem" draggable="true" data-term="Ribosoma">Ribosoma</div>
+  <!-- Memory Game Section -->
+  <section>
+    <h2>1. Memoria de Orgánulos</h2>
+    <div id="memory-header">
+      <div>Movimientos: <span id="moves">0</span></div>
+      <div>Tiempo: <span id="timer">00:00</span></div>
+      <button id="memory-reset" class="btn">Reiniciar</button>
     </div>
+    <div id="memory-game"></div>
+  </section>
 
-    <button id="ddl-check">Verificar respuestas</button>
-    <p id="ddl-feedback"></p>
-  </div>
+  <!-- Drag & Drop Section -->
+  <section>
+    <h2>2. Completa el texto arrastrando</h2>
+    <div id="ddl-game">
+      <p>La <span class="dropzone" data-term="Mitocondria">____</span> produce ATP.</p>
+      <p>El <span class="dropzone" data-term="Núcleo">____</span> contiene el ADN.</p>
+      <p>La <span class="dropzone" data-term="Membrana">____</span> controla el paso de sustancias.</p>
+      <p>El <span class="dropzone" data-term="Ribosoma">____</span> sintetiza proteínas.</p>
+
+      <div id="draggables"></div>
+
+      <div id="ddl-controls">
+        <button id="ddl-check" class="btn">Verificar</button>
+        <button id="ddl-reset" class="btn">Reiniciar</button>
+      </div>
+      <p id="ddl-feedback"></p>
+    </div>
+  </section>
 
   <script>
-    // --- Memory Game ---
-    const items = [
+    // ---------- Memory Game ----------
+    const memoryItems = [
       { name: "Mitocondria", text: "Produce ATP (energía)" },
       { name: "Núcleo",      text: "Contiene el ADN" },
       { name: "Membrana",    text: "Controla paso de sustancias" },
       { name: "Ribosoma",    text: "Sintetiza proteínas" }
     ];
-    let cards = items.concat(items).sort(() => 0.5 - Math.random());
-    const game = document.getElementById("memory-game");
-    let firstCard, secondCard, lock = false;
+    let memoryCards, firstCard, secondCard, lock = false;
+    let moves = 0, timerInterval, seconds = 0;
 
-    cards.forEach(item => {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.dataset.name = item.name;
-      const front = document.createElement("div");
-      front.className = "card-face card-front";
-      front.textContent = "?";
-      const back = document.createElement("div");
-      back.className = "card-face card-back";
-      back.innerHTML = `<strong>${item.name}</strong><br><small>${item.text}</small>`;
-      card.append(front, back);
-      game.appendChild(card);
-
-      card.addEventListener("click", () => {
-        if (lock || card === firstCard || card.classList.contains("matched")) return;
-        card.classList.add("flipped");
-        if (!firstCard) {
-          firstCard = card;
-        } else {
-          secondCard = card;
-          lock = true;
-          if (firstCard.dataset.name === secondCard.dataset.name) {
-            [firstCard, secondCard].forEach(c => c.classList.add("matched"));
-            resetMemoryTurn();
-          } else {
-            setTimeout(() => {
-              [firstCard, secondCard].forEach(c => c.classList.remove("flipped"));
-              resetMemoryTurn();
-            }, 800);
-          }
-        }
+    function initMemoryGame() {
+      // reset variables
+      clearInterval(timerInterval);
+      seconds = 0;
+      moves = 0;
+      document.getElementById('moves').textContent = moves;
+      document.getElementById('timer').textContent = '00:00';
+      firstCard = null;
+      secondCard = null;
+      lock = false;
+      // shuffle cards
+      memoryCards = memoryItems.concat(memoryItems).sort(() => 0.5 - Math.random());
+      const container = document.getElementById('memory-game');
+      container.innerHTML = '';
+      // create cards
+      memoryCards.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.dataset.name = item.name;
+        const front = document.createElement('div');
+        front.className = 'card-face card-front';
+        front.textContent = '?';
+        const back = document.createElement('div');
+        back.className = 'card-face card-back';
+        back.innerHTML = `<strong>${item.name}</strong><br><small>${item.text}</small>`;
+        card.append(front, back);
+        container.append(card);
+        card.addEventListener('click', () => flipCard(card));
       });
-    });
+      // start timer
+      timerInterval = setInterval(() => {
+        seconds++;
+        const m = String(Math.floor(seconds/60)).padStart(2,'0');
+        const s = String(seconds%60).padStart(2,'0');
+        document.getElementById('timer').textContent = `${m}:${s}`;
+      }, 1000);
+    }
 
-    function resetMemoryTurn() {
+    function flipCard(card) {
+      if (lock || card === firstCard || card.classList.contains('matched')) return;
+      card.classList.add('flipped');
+      if (!firstCard) {
+        firstCard = card;
+      } else {
+        secondCard = card;
+        lock = true;
+        moves++;
+        document.getElementById('moves').textContent = moves;
+        if (firstCard.dataset.name === secondCard.dataset.name) {
+          [firstCard, secondCard].forEach(c => c.classList.add('matched'));
+          resetTurn();
+        } else {
+          setTimeout(() => {
+            [firstCard, secondCard].forEach(c => c.classList.remove('flipped'));
+            resetTurn();
+          }, 800);
+        }
+      }
+    }
+
+    function resetTurn() {
       [firstCard, secondCard] = [null, null];
       lock = false;
     }
 
-    // --- Drag & Drop ---
-    const draggables = document.querySelectorAll('.dragitem');
-    const dropzones  = document.querySelectorAll('.dropzone');
-    let draggedTerm = null;
-
-    draggables.forEach(item => {
-      item.addEventListener('dragstart', e => {
-        draggedTerm = item.dataset.term;
-        e.dataTransfer.setData('text/plain', draggedTerm);
-      });
+    document.getElementById('memory-reset').addEventListener('click', () => {
+      clearInterval(timerInterval);
+      initMemoryGame();
     });
 
-    dropzones.forEach(zone => {
-      zone.addEventListener('dragover', e => e.preventDefault());
-      zone.addEventListener('drop', e => {
-        e.preventDefault();
-        const term = e.dataTransfer.getData('text/plain');
-        if (!zone.classList.contains('filled')) {
-          zone.textContent = term;
-          zone.classList.add('filled');
-        }
+    // ---------- Drag & Drop ----------
+    const ddlItems = ["Mitocondria","Núcleo","Membrana","Ribosoma"];
+    let dragged = null;
+
+    function initDDL() {
+      // clear dropzones
+      document.querySelectorAll('.dropzone').forEach(z => {
+        z.textContent = '____';
+        z.classList.remove('filled');
       });
-    });
+      // build draggables shuffled
+      const container = document.getElementById('draggables');
+      container.innerHTML = '';
+      ddlItems.sort(() => 0.5 - Math.random()).forEach(term => {
+        const div = document.createElement('div');
+        div.className = 'dragitem';
+        div.draggable = true;
+        div.textContent = term;
+        div.dataset.term = term;
+        container.append(div);
+        div.addEventListener('dragstart', e => {
+          dragged = term;
+        });
+      });
+      // set drop events
+      document.querySelectorAll('.dropzone').forEach(zone => {
+        zone.addEventListener('dragover', e => e.preventDefault());
+        zone.addEventListener('drop', e => {
+          e.preventDefault();
+          if (!zone.classList.contains('filled')) {
+            zone.textContent = dragged;
+            zone.classList.add('filled');
+          }
+        });
+      });
+      document.getElementById('ddl-feedback').textContent = '';
+    }
 
     document.getElementById('ddl-check').addEventListener('click', () => {
       let correct = 0;
-      dropzones.forEach(zone => {
-        if (zone.textContent === zone.dataset.term) {
-          zone.style.borderColor = '#4CAF50';
+      document.querySelectorAll('.dropzone').forEach(z => {
+        if (z.textContent === z.dataset.term) {
+          z.style.borderColor = '#4CAF50';
           correct++;
         } else {
-          zone.style.borderColor = '#F44336';
+          z.style.borderColor = '#F44336';
         }
       });
       const fb = document.getElementById('ddl-feedback');
-      fb.textContent = `Has completado ${correct} de ${dropzones.length} correctamente.`;
-      fb.style.color = correct === dropzones.length ? '#4CAF50' : '#F44336';
+      fb.textContent = `Has completado ${correct} de ${ddlItems.length} correctamente.`;
+      fb.style.color = correct === ddlItems.length ? '#4CAF50' : '#F44336';
+    });
+
+    document.getElementById('ddl-reset').addEventListener('click', initDDL);
+
+    // initialize both games on load
+    window.addEventListener('load', () => {
+      initMemoryGame();
+      initDDL();
     });
   </script>
+
 </body>
 </html>
